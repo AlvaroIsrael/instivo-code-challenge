@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { CalculationModel } from '@entities/Calculation.entity';
 import CalculationService from '@modules/calculations/services/Calculations.service';
 import ZipCodeService from '@modules/zipCodes/services/ZipCode.service';
 import CalculationsRepository from '@repositories/Calculations.repository';
@@ -84,6 +85,19 @@ describe('CalculationsService', () => {
         };
       });
 
+    jest
+      .spyOn(calculateRepository, 'create')
+      .mockImplementationOnce(async () => {
+        const calculation = new CalculationModel({
+          idUuid: 'aacc6fbd-ef7c-47c4-87b2-da2c05506d4c',
+          daysPassed: 1,
+          monthsPassed: 1,
+          yearsPassed: 1,
+          salaryPercentage: 350,
+        });
+        return Promise.resolve(calculation);
+      });
+
     await calculationService.execute({
       date,
       salary,
@@ -91,5 +105,54 @@ describe('CalculationsService', () => {
     });
 
     expect(zipCodeServiceSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('Deve ser capaz de fazer um cálculo corretamente.', async () => {
+    const date = '2021-01-01';
+    const salary = 1000;
+    const zipCode = '12345-678';
+
+    const zipCodeServiceSpy = jest
+      .spyOn(zipCodeService, 'getZipCodeData')
+      .mockImplementationOnce(async () => {
+        return {
+          cep: '12345-678',
+          logradouro: 'Rua Teste',
+          complemento: 'Complemento Teste',
+          unidade: 'Unidade Teste',
+          bairro: 'Bairro Teste',
+          localidade: 'Cidade Teste',
+          uf: 'TS',
+          estado: 'São Paulo',
+          regiao: 'Sudeste',
+          ibge: '1234567',
+          gia: '1234567',
+          ddd: '11',
+          siafi: '1234',
+        };
+      });
+
+    const calculationSpy = jest
+      .spyOn(calculateRepository, 'create')
+      .mockImplementationOnce(async () => {
+        const calculation = new CalculationModel({
+          idUuid: 'aacc6fbd-ef7c-47c4-87b2-da2c05506d4c',
+          daysPassed: 1,
+          monthsPassed: 1,
+          yearsPassed: 1,
+          salaryPercentage: 350,
+        });
+        return Promise.resolve(calculation);
+      });
+
+    const { idUuid } = await calculationService.execute({
+      date,
+      salary,
+      zipCode,
+    });
+
+    expect(zipCodeServiceSpy).toHaveBeenCalledTimes(1);
+    expect(calculationSpy).toHaveBeenCalledTimes(1);
+    expect(idUuid).toBe('aacc6fbd-ef7c-47c4-87b2-da2c05506d4c');
   });
 });
