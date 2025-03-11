@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+test-reports
+.husky
+doc
+kubernetes_templates
+scripts
+plataforma

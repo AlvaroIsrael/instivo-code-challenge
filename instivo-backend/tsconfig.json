@@ -1,0 +1,34 @@
+{
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "strictPropertyInitialization": false,
+    "baseUrl": "./src",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "outDir": "dist",
+    "paths": {
+      "src/*": ["src/*"],
+      "@entities/*": ["shared/database/entities/*"],
+      "@repositories/*": ["repositories/*"],
+      "@modules/*": ["modules/*"],
+      "@config/*": ["config/*"],
+      "@shared/*": ["shared/*"],
+      "@errors/*": ["shared/errors/*"],
+      "@utils/*": ["shared/utils/*"],
+      "@middlewares/*": ["shared/middlewares/*"],
+      "@providers/*": ["shared/providers/*"]
+    },
+    "typeRoots": ["./src/@types","./node_modules/@types"]
+  },
+  "include": ["src", "./src/@types/**/*.ts", "./src/**/*.json"]
+}

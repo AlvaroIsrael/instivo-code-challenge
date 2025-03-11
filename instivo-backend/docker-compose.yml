@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  instivo-backend:
+    build: .
+    container_name: instivo-backend
+    env_file: .env.development
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+      - 3000:3000
+      - 3333:3333
+    restart: always
+    volumes:
+      - ./:/usr/app
+      - /usr/app/node_modules
+  mongo:
+    image: mongo:7.0.14
+    env_file: .env.development
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/instivo --quiet
+volumes:
+  mongodata:

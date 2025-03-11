@@ -1,0 +1,281 @@
+openapi: 3.0.0
+info:
+  title: Calculations API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/v1
+    description: Development server
+
+paths:
+  /calculations:
+    post:
+      summary: Create a new calculation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date-time
+                salary:
+                  type: number
+                zipCode:
+                  type: string
+              required:
+                - date
+                - salary
+                - zipCode
+      responses:
+        '200':
+          description: Calculation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calculation'
+        '400':
+          description: Validation error
+        '500':
+          description: Internal server error
+    get:
+      summary: List all calculations
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: idUuid
+          schema:
+            type: string
+        - in: query
+          name: daysPassed
+          schema:
+            type: integer
+        - in: query
+          name: monthsPassed
+          schema:
+            type: integer
+        - in: query
+          name: yearsPassed
+          schema:
+            type: integer
+        - in: query
+          name: salaryPercentage
+          schema:
+            type: number
+        - in: query
+          name: zipCodeData.cep
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.logradouro
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.complemento
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.unidade
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.bairro
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.localidade
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.uf
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.estado
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.regiao
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.ibge
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.gia
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.ddd
+          schema:
+            type: string
+        - in: query
+          name: zipCodeData.siafi
+          schema:
+            type: string
+        - in: query
+          name: createdAt
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: updatedAt
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of calculations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Calculation'
+        '400':
+          description: Validation error
+        '500':
+          description: Internal server error
+  /calculations/{id}:
+    get:
+      summary: Get a calculation by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Calculation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calculation'
+        '400':
+          description: Validation error
+        '404':
+          description: Calculation not found
+        '500':
+          description: Internal server error
+    put:
+      summary: Update a calculation by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date-time
+                salary:
+                  type: number
+                zipCode:
+                  type: string
+              required:
+                - date
+                - salary
+                - zipCode
+      responses:
+        '200':
+          description: Calculation updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calculation'
+        '400':
+          description: Validation error
+        '404':
+          description: Calculation not found
+        '500':
+          description: Internal server error
+    patch:
+      summary: Partially update a calculation by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date-time
+                salary:
+                  type: number
+                zipCode:
+                  type: string
+      responses:
+        '200':
+          description: Calculation updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calculation'
+        '400':
+          description: Validation error
+        '404':
+          description: Calculation not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete a calculation by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Calculation deleted successfully
+        '400':
+          description: Validation error
+        '404':
+          description: Calculation not found
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    Calculation:
+      type: object
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        salary:
+          type: number
+        zipCode:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
