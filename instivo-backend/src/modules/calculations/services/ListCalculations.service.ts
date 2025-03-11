@@ -9,24 +9,33 @@ interface IRequest {
   filters?: Partial<ICreateCalculation>;
 }
 
+type IResponse = Partial<Calculation>[];
+
 @injectable()
 class ListCalculationsService {
   constructor(
     @inject('CalculationsRepository')
     private calculationRepository: ICalculationsRepository,
   ) {}
-  public async execute({
-    page,
-    limit,
-    filters,
-  }: IRequest): Promise<Calculation[]> {
+  public async execute({ page, limit, filters }: IRequest): Promise<IResponse> {
     const calculations = await this.calculationRepository.findAll(
       filters ? filters : {},
       page,
       limit,
     );
 
-    return calculations;
+    const calculationsResponse = calculations.map((calculation) => {
+      return {
+        idUuid: calculation.idUuid,
+        daysPassed: calculation.daysPassed,
+        monthsPassed: calculation.monthsPassed,
+        yearsPassed: calculation.yearsPassed,
+        salaryPercentage: calculation.salaryPercentage,
+        zipCodeData: calculation.zipCodeData,
+      };
+    });
+
+    return calculationsResponse;
   }
 }
 
