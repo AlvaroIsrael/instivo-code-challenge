@@ -1,23 +1,13 @@
 import 'reflect-metadata';
+import { CalculationModel } from '@entities/Calculation.entity';
 import DeleteCalculationsService from '@modules/calculations/services/DeleteCalculations.service';
 import CalculationsRepository from '@repositories/Calculations.repository';
 import ICalculationsRepository from '@repositories/interfaces/ICalculationsRepository';
-import { closeConnection, openConnection } from '@shared/database/dataSource';
-import logger from 'debug';
 
 let deleteCalculationsService: DeleteCalculationsService;
 let calculateRepository: ICalculationsRepository;
-describe('DeleteCalculationsService', () => {
-  beforeAll(() => {
-    openConnection()
-      .then((connection) => {
-        logger.log(`Database initialized: ${connection.readyState}`);
-      })
-      .catch((err) => {
-        logger.log(`💣 Error initializing the application 💥: ${err}`);
-      });
-  });
 
+describe('DeleteCalculationsService', () => {
   beforeEach(() => {
     calculateRepository = new CalculationsRepository();
     deleteCalculationsService = new DeleteCalculationsService(
@@ -29,12 +19,11 @@ describe('DeleteCalculationsService', () => {
     jest.clearAllMocks();
   });
 
-  afterAll(async () => {
-    await closeConnection();
-  });
-
   test('Deve retornar erro 404 caso a calculação não exista', async () => {
     const id = 'que id é esse?';
+
+    jest.spyOn(calculateRepository, 'findById').mockResolvedValue(null);
+
     try {
       await deleteCalculationsService.execute({ id });
     } catch (error) {
@@ -44,7 +33,8 @@ describe('DeleteCalculationsService', () => {
   });
 
   test('Deve deletar um cálculo', async () => {
-    const calculation = await calculateRepository.create({
+    const foundCalculation = new CalculationModel({
+      idUuid: 'b02e87ca-0a83-4c95-ba4f-b260aa557ab2',
       daysPassed: 1,
       monthsPassed: 1,
       salaryPercentage: 350,
@@ -66,15 +56,18 @@ describe('DeleteCalculationsService', () => {
       },
     });
 
-    const deleteSpy = jest.spyOn(calculateRepository, 'delete');
+    const findByIdSpy = jest
+      .spyOn(calculateRepository, 'findById')
+      .mockResolvedValue(foundCalculation);
 
-    await deleteCalculationsService.execute({ id: calculation.idUuid });
+    const deleteSpy = jest
+      .spyOn(calculateRepository, 'delete')
+      .mockResolvedValue();
 
-    const calculationDeleted = await calculateRepository.findById(
-      calculation.id,
-    );
+    await deleteCalculationsService.execute({ id: foundCalculation.idUuid });
 
-    expect(calculationDeleted).toBeNull();
+    expect(findByIdSpy).toHaveBeenCalledTimes(1);
+    expect(findByIdSpy).toHaveBeenCalledWith(foundCalculation.idUuid);
     expect(deleteSpy).toHaveBeenCalledTimes(1);
   });
 });
