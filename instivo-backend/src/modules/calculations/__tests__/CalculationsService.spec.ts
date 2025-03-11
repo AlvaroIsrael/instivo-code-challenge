@@ -4,23 +4,11 @@ import CalculationService from '@modules/calculations/services/Calculations.serv
 import ZipCodeService from '@modules/zipCodes/services/ZipCode.service';
 import CalculationsRepository from '@repositories/Calculations.repository';
 import ICalculationsRepository from '@repositories/interfaces/ICalculationsRepository';
-import { closeConnection, openConnection } from '@shared/database/dataSource';
-import logger from 'debug';
 
 let zipCodeService: ZipCodeService;
 let calculationService: CalculationService;
 let calculateRepository: ICalculationsRepository;
 describe('CalculationsService', () => {
-  beforeAll(() => {
-    openConnection()
-      .then((connection) => {
-        logger.log(`Database initialized: ${connection.readyState}`);
-      })
-      .catch((err) => {
-        logger.log(`💣 Error initializing the application 💥: ${err}`);
-      });
-  });
-
   beforeEach(() => {
     zipCodeService = new ZipCodeService();
     calculateRepository = new CalculationsRepository();
@@ -32,10 +20,6 @@ describe('CalculationsService', () => {
 
   afterEach(async () => {
     jest.clearAllMocks();
-  });
-
-  afterAll(async () => {
-    await closeConnection();
   });
 
   test('Não deve criar um cálculo novo se a api de cep falhar.', async () => {
