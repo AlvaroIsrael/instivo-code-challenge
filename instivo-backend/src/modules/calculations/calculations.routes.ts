@@ -2,7 +2,7 @@ import { Joi, Segments, celebrate } from 'celebrate';
 import { Router } from 'express';
 
 import CalculationsController from '@modules/calculations/calculations.controller';
-import { ensureAuthenticationMiddleware } from '@shared/middlewares/ensureAuthentication.middleware';
+// import { ensureAuthenticationMiddleware } from '@shared/middlewares/ensureAuthentication.middleware';
 
 const calculationsRouter = Router();
 const calculationsController = new CalculationsController();
@@ -91,10 +91,15 @@ calculationsRouter.patch(
       id: Joi.string().uuid().required(),
     },
     [Segments.BODY]: Joi.object({
-      date: Joi.string().isoDate(),
-      salary: Joi.number(),
-      zipCode: Joi.string().pattern(/^\d{5}-\d{3}$/),
-    }).required(),
+      date: Joi.string().isoDate().optional(),
+      salary: Joi.number().optional(),
+      zipCode: Joi.string()
+        .pattern(/^\d{5}-\d{3}$/)
+        .optional(),
+    })
+      .or('date', 'salary', 'zipCode')
+      .min(1)
+      .required(),
   }),
   calculationsController.edit,
 );
