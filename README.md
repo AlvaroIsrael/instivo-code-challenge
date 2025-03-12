@@ -121,13 +121,31 @@ Aguarde até que a mensagem abaixo seja exibida, indicando que a aplicação est
    - Network:      http://0.0.0.0:3000
 ```
 
+Para executar os testes, basta rodar o seguinte comando na raiz do projeto:
+
+```bash
+$ cd instivo-frontend
+$ npm run test
+```
+
+Implementei 2 testes simples para o frontend, apenas para exemplificar:
+
+- [x] Um teste para garantir que os resultados da api mockados estão sendo exibidos na tela.
+- [x] Um teste de integração chamado a API real e retornando os dados para a telinha azul após o clique no botão.
+
+➡️ No fundo, ambos são o mesmo teste, apenas uma versão mockada e outra real.
+Vale ressaltar que o teste de integração faz uma requisição real ao backend, então é necessário que o backend esteja
+rodando, caso contrário o teste irá falhar.
+
 ### Observações:
 
 - Como não havia layout, o frontend foi desenvolvido de forma simples, sem muitos estilos.
 - O frontend foi desenvolvido utilizando o framework Next.js.
 - Não me preocupei com a responsividade do frontend, pois o teste não pedia.
 - Apenas o campo de CEP está com uma validação simples, pois o teste não pedia validações rigorosas no frontend.
-- Não fiz testes no frontend, pois o teste não pedia.
+- **Os env files estão versionados de propósito e também a url da api hardcoded no frontend. Claro que em uma situação
+  real isso não seria feito, mas para fins de teste, achei mais prático deixar assim, para facilitar o trabalho do
+  corretor.**
 
 Aqui vai uma captura de tela do frontend:
 
@@ -135,10 +153,11 @@ Aqui vai uma captura de tela do frontend:
 
 ### O que eu faria diferente?
 
-- Implementaria um sistema de autenticação para proteger as rotas. Cheguei inclusive a deixar o middleware de autenticação
+- Implementaria um sistema de autenticação para proteger as rotas. Cheguei inclusive a deixar o middleware de
+  autenticação
   pronto, mas não implementei a autenticação em si.
 - Implementaria um sistema de cache para as requisições ao ViaCEP, para evitar fazer requisições repetidas ao mesmo CEP.
 - Utilizaria o TypeORM ao invés do Mongoose, pois acho ele mais robusto e com suporte a mais bancos de dados.
-- Talvez apartaria a lógica de cálculo de tempo de serviço e 35% do salário bruto para um serviço separado, 
-  possibilitando reuso. Por hora decidi não fazer isso, pois a lógica é simples e apartar só iria gerar mais 
+- Talvez apartaria a lógica de cálculo de tempo de serviço e 35% do salário bruto para um serviço separado,
+  possibilitando reuso. Por hora decidi não fazer isso, pois a lógica é simples e apartar só iria gerar mais
   complexidade e novos processos de teste.
