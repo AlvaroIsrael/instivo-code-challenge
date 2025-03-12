@@ -1,5 +1,6 @@
-import { Calculation } from '@entities/Calculation.entity';
-import ZipCodeService from '@modules/zipCodes/services/ZipCode.service';
+import ZipCodeService, {
+  ZipCodeData,
+} from '@modules/zipCodes/services/ZipCode.service';
 import ICalculationsRepository from '@repositories/interfaces/ICalculationsRepository';
 import { NotFoundError } from '@shared/errors';
 import {
@@ -16,7 +17,14 @@ interface IRequest {
   zipCode: string;
 }
 
-type IResponse = Calculation;
+interface IResponse {
+  idUuid: string;
+  daysPassed: number;
+  monthsPassed: number;
+  yearsPassed: number;
+  salaryPercentage: number;
+  zipCodeData: ZipCodeData;
+}
 
 @injectable()
 class UpdateCalculationsService {
@@ -58,7 +66,16 @@ class UpdateCalculationsService {
     calculation.salaryPercentage = salaryPercentage;
     calculation.zipCodeData = zipCodeData;
 
-    return this.calculationRepository.save(calculation);
+    const newCalculation = await this.calculationRepository.save(calculation);
+
+    return {
+      idUuid: newCalculation.idUuid,
+      daysPassed: newCalculation.daysPassed,
+      monthsPassed: newCalculation.monthsPassed,
+      yearsPassed: newCalculation.yearsPassed,
+      salaryPercentage: newCalculation.salaryPercentage,
+      zipCodeData: newCalculation.zipCodeData,
+    };
   }
 }
 
