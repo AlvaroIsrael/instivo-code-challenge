@@ -19,7 +19,7 @@ import {
   Title,
 } from './styles';
 
-export default function Home() {
+export default function Page() {
   const { reward: confettiReward, isAnimating } = useReward(
     'rewardId',
     'confetti',
@@ -76,7 +76,7 @@ export default function Home() {
     setResponse(null);
 
     try {
-      const res = await axios.post(
+      const res = await axios.post<IApiResponse>(
         'http://localhost:3333/v1/calculations',
         {
           date: formData.date,
@@ -104,11 +104,12 @@ export default function Home() {
   return (
     <Container>
       <Form>
-        <Title>Api de Cálculos 🧮</Title>
+        <Title data-testid="title">Api de Cálculos 🧮</Title>
         <Subtitle>Preencha os campos abaixo:</Subtitle>
 
         <Label>Data Admissão:</Label>
         <Input
+          data-testid="date-input"
           type="date"
           name="date"
           value={formData.date}
@@ -117,6 +118,7 @@ export default function Home() {
 
         <Label>Salário (R$):</Label>
         <Input
+          data-testid="salary-input"
           type="number"
           name="salary"
           min="1"
@@ -126,6 +128,7 @@ export default function Home() {
 
         <Label>CEP:</Label>
         <Input
+          data-testid="zip-code-input"
           type="text"
           name="zipCode"
           value={formData.zipCode}
@@ -136,7 +139,11 @@ export default function Home() {
         />
         {zipCodeError && <Small error={zipCodeError}>Formato: 00000-000</Small>}
 
-        <Button disabled={isAnimating} onClick={handleSubmit}>
+        <Button
+          data-testid="submit-button"
+          disabled={isAnimating}
+          onClick={handleSubmit}
+        >
           <span id="rewardId" />
           {loading ? '⏳ Calculando...' : '🔍 Calcular'}
         </Button>
@@ -148,7 +155,7 @@ export default function Home() {
         )}
 
         {response && (
-          <ResponseBox>
+          <ResponseBox data-testid="response-box">
             <h3>Consulta Realizada</h3>
             <>
               <p>
