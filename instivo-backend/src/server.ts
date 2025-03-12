@@ -1,11 +1,12 @@
 import 'reflect-metadata';
 import path from 'path';
 import { errors } from 'celebrate';
-import cors from 'cors';
+// import cors from 'cors';
 import 'express-async-errors';
 import logger from 'debug';
 import dotenv from 'dotenv';
 import yaml from 'yamljs';
+
 const swagger = yaml.load('src/@documentaion/swagger.yaml');
 import express, { Express } from 'express';
 import swaggerUi from 'swagger-ui-express';
@@ -21,19 +22,19 @@ import usersRouter from '@modules/users/users.routes';
 import { closeConnection, openConnection } from '@shared/database/dataSource';
 
 openConnection()
-  .then((connection) => {
-    logger.log(`Database initialized: ${connection.readyState}`);
+  .then(() => {
+    logger.log('✅ Database initialized ✅');
 
     const server: Express = express();
 
-    server.use(
-      cors({
-        origin: process.env.FRONTEND_URL || '*',
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-        methods: ['GET', 'POST', 'PUT', 'PATCH'],
-        credentials: true,
-      }),
-    );
+    // server.use(
+    //   cors({
+    //     origin: process.env.FRONTEND_URL || '*',
+    //     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    //     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    //     credentials: true,
+    //   }),
+    // );
 
     server.use(express.json());
     server.use('/v1', usersRouter);
