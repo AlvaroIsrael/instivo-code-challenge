@@ -1,10 +1,11 @@
 openapi: 3.0.0
 info:
   title: Calculations API
+  description: Documentation for the Calculations API
   version: 1.0.0
 
 servers:
-  - url: http://localhost:3000/v1
+  - url: http://localhost:3333/v1
     description: Development server
 
 paths:

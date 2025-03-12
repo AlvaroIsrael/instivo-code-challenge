@@ -63,6 +63,8 @@
 - [x] Documentação gerada utilizando o Swagger. Para acessar a documentação basta rodar o projeto e acessar
   `http://localhost:3000/v1/docs`. É possível fazer requisições diretamente pela documentação.
 
+![swagger](/instivo-frontend/public/swagger.png)
+
 ### Controller Advice:
 
 - Implementar um Controller Advice para tratamento de erros, garantindo que exceções sejam capturadas e retornadas
