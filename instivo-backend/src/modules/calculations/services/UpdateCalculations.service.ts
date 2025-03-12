@@ -1,7 +1,12 @@
 import { Calculation } from '@entities/Calculation.entity';
-import CalculationService from '@modules/calculations/services/Calculations.service';
+import ZipCodeService from '@modules/zipCodes/services/ZipCode.service';
 import ICalculationsRepository from '@repositories/interfaces/ICalculationsRepository';
 import { NotFoundError } from '@shared/errors';
+import {
+  differenceInDays,
+  differenceInMonths,
+  differenceInYears,
+} from 'date-fns';
 import { inject, injectable } from 'tsyringe';
 
 interface IRequest {
@@ -19,8 +24,8 @@ class UpdateCalculationsService {
     @inject('CalculationsRepository')
     private calculationRepository: ICalculationsRepository,
 
-    @inject('CalculationsService')
-    private calculationsService: CalculationService,
+    @inject('ZipCodeService')
+    private zipCodeService: ZipCodeService,
   ) {}
 
   public async execute({
@@ -35,17 +40,23 @@ class UpdateCalculationsService {
       throw new NotFoundError('Calculation not found');
     }
 
-    const newCalculation = await this.calculationsService.execute({
-      date,
-      salary,
-      zipCode,
-    });
+    const currentDate = new Date();
+    const inputDate = new Date(date);
 
-    calculation.daysPassed = newCalculation.daysPassed;
-    calculation.monthsPassed = newCalculation.monthsPassed;
-    calculation.yearsPassed = newCalculation.yearsPassed;
-    calculation.salaryPercentage = newCalculation.salaryPercentage;
-    calculation.zipCodeData = newCalculation.zipCodeData;
+    const daysPassed = differenceInDays(currentDate, inputDate);
+    const monthsPassed = differenceInMonths(currentDate, inputDate);
+    const yearsPassed = differenceInYears(currentDate, inputDate);
+    const salaryPercentage = salary * 0.35;
+
+    const zipCodeData = await this.zipCodeService.getZipCodeData(
+      zipCode.replace(/\D/g, ''),
+    );
+
+    calculation.daysPassed = daysPassed;
+    calculation.monthsPassed = monthsPassed;
+    calculation.yearsPassed = yearsPassed;
+    calculation.salaryPercentage = salaryPercentage;
+    calculation.zipCodeData = zipCodeData;
 
     return this.calculationRepository.save(calculation);
   }
