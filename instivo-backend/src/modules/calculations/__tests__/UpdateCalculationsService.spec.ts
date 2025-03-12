@@ -1,38 +1,22 @@
 import 'reflect-metadata';
-import CalculationService from '@modules/calculations/services/Calculations.service';
+
+import { CalculationModel } from '@entities/Calculation.entity';
 import UpdateCalculationsService from '@modules/calculations/services/UpdateCalculations.service';
 import ZipCodeService from '@modules/zipCodes/services/ZipCode.service';
 import CalculationsRepository from '@repositories/Calculations.repository';
 import ICalculationsRepository from '@repositories/interfaces/ICalculationsRepository';
-import { closeConnection, openConnection } from '@shared/database/dataSource';
-import logger from 'debug';
 
 let zipCodeService: ZipCodeService;
-let calculationService: CalculationService;
 let updateCalculationsService: UpdateCalculationsService;
 let calculateRepository: ICalculationsRepository;
 
 describe('UpdateCalculationsService', () => {
-  beforeAll(() => {
-    openConnection()
-      .then((connection) => {
-        logger.log(`Database initialized: ${connection.readyState}`);
-      })
-      .catch((err) => {
-        logger.log(`💣 Error initializing the application 💥: ${err}`);
-      });
-  });
-
   beforeEach(() => {
     zipCodeService = new ZipCodeService();
     calculateRepository = new CalculationsRepository();
-    calculationService = new CalculationService(
-      zipCodeService,
-      calculateRepository,
-    );
     updateCalculationsService = new UpdateCalculationsService(
       calculateRepository,
-      calculationService,
+      zipCodeService,
     );
   });
 
@@ -40,12 +24,8 @@ describe('UpdateCalculationsService', () => {
     jest.clearAllMocks();
   });
 
-  afterAll(async () => {
-    await closeConnection();
-  });
-
   test('Deve retornar erro 404 se não encontrar o cálculo.', async () => {
-    const id = '123';
+    const id = '10bcbb71-80be-4b35-83a9-ebfcf43a5af2';
     const date = '2021-01-01';
     const salary = 1000;
     const zipCode = '12345-678';
@@ -68,7 +48,8 @@ describe('UpdateCalculationsService', () => {
   });
 
   test('Deve ser capaz de atualizar um cálculo.', async () => {
-    const calculation = await calculateRepository.create({
+    const foundCalculation = new CalculationModel({
+      idUuid: 'b02e87ca-0a83-4c95-ba4f-b260aa557ab2',
       daysPassed: 1,
       monthsPassed: 1,
       salaryPercentage: 350,
@@ -90,41 +71,77 @@ describe('UpdateCalculationsService', () => {
       },
     });
 
+    const findByIdSpy = jest
+      .spyOn(calculateRepository, 'findById')
+      .mockResolvedValue(foundCalculation);
+
     const date = '2021-01-01';
-    const salary = 1000;
+    const salary = 2000;
     const zipCode = '11111-111';
 
-    jest
+    const zipCodeServiceSpy = jest
       .spyOn(zipCodeService, 'getZipCodeData')
       .mockImplementationOnce(async () => {
-        return {
+        return Promise.resolve({
           cep: zipCode,
-          logradouro: 'Rua Teste',
-          complemento: 'Complemento Teste',
-          unidade: 'Unidade Teste',
-          bairro: 'Bairro Teste',
-          localidade: 'Cidade Teste',
+          logradouro: 'Rua Teste 2',
+          complemento: 'Complemento Teste 2',
+          unidade: 'Unidade Teste 2',
+          bairro: 'Bairro Teste 2',
+          localidade: 'Cidade Teste 2',
           uf: 'TS',
           estado: 'São Paulo',
           regiao: 'Sudeste',
-          ibge: '1234567',
-          gia: '1234567',
-          ddd: '11',
-          siafi: '1234',
-        };
+          ibge: '1234562',
+          gia: '1234562',
+          ddd: '12',
+          siafi: '1224',
+        });
       });
 
-    console.log('calculation.idUuid', calculation.idUuid);
-    calculation.idUuid;
+    const saveSpy = jest
+      .spyOn(calculateRepository, 'save')
+      .mockImplementationOnce(async () => {
+        return Promise.resolve(
+          new CalculationModel({
+            idUuid: 'fe0cadf7-c93e-4eee-b765-d358b4181e11',
+            daysPassed: 1,
+            monthsPassed: 1,
+            salaryPercentage: salary * 0.35,
+            yearsPassed: 1,
+            zipCodeData: {
+              cep: zipCode,
+              logradouro: 'Rua Teste 2',
+              complemento: 'Complemento Teste 2',
+              unidade: 'Unidade Teste 2',
+              bairro: 'Bairro Teste 2',
+              localidade: 'Cidade Teste 2',
+              uf: 'TS',
+              estado: 'São Paulo',
+              regiao: 'Sudeste',
+              ibge: '1234562',
+              gia: '1234562',
+              ddd: '12',
+              siafi: '1224',
+            },
+          }),
+        );
+      });
+
     const updatedCalculation = await updateCalculationsService.execute({
-      id: calculation.idUuid,
+      id: foundCalculation.idUuid,
       date,
       salary,
       zipCode,
     });
 
-    expect(updatedCalculation).toHaveProperty('id');
+    expect(updatedCalculation).toHaveProperty('idUuid');
     expect(updatedCalculation).toHaveProperty('zipCodeData');
     expect(updatedCalculation.zipCodeData.cep).toBe('11111-111');
+    expect(findByIdSpy).toHaveBeenCalledTimes(1);
+    expect(findByIdSpy).toHaveBeenCalledWith(foundCalculation.idUuid);
+    expect(zipCodeServiceSpy).toHaveBeenCalledTimes(1);
+    expect(zipCodeServiceSpy).toHaveBeenCalledWith('11111111');
+    expect(saveSpy).toHaveBeenCalledTimes(1);
   });
 });
