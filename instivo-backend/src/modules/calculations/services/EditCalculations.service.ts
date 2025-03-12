@@ -1,5 +1,6 @@
-import { Calculation } from '@entities/Calculation.entity';
-import ZipCodeService from '@modules/zipCodes/services/ZipCode.service';
+import ZipCodeService, {
+  ZipCodeData,
+} from '@modules/zipCodes/services/ZipCode.service';
 import ICalculationsRepository from '@repositories/interfaces/ICalculationsRepository';
 import { NotFoundError } from '@shared/errors';
 import {
@@ -16,7 +17,14 @@ interface IRequest {
   zipCode: string;
 }
 
-type IResponse = Calculation;
+interface IResponse {
+  idUuid: string;
+  daysPassed: number;
+  monthsPassed: number;
+  yearsPassed: number;
+  salaryPercentage: number;
+  zipCodeData: ZipCodeData;
+}
 
 @injectable()
 class EditCalculationsService {
@@ -40,25 +48,35 @@ class EditCalculationsService {
       throw new NotFoundError('Calculation not found');
     }
 
-    const currentDate = new Date();
-    const inputDate = new Date(date);
+    if (date) {
+      const currentDate = new Date();
+      const inputDate = new Date(date);
 
-    const daysPassed = differenceInDays(currentDate, inputDate);
-    const monthsPassed = differenceInMonths(currentDate, inputDate);
-    const yearsPassed = differenceInYears(currentDate, inputDate);
-    const salaryPercentage = salary * 0.35;
+      calculation.daysPassed = differenceInDays(currentDate, inputDate);
+      calculation.monthsPassed = differenceInMonths(currentDate, inputDate);
+      calculation.yearsPassed = differenceInYears(currentDate, inputDate);
+    }
 
-    const zipCodeData = await this.zipCodeService.getZipCodeData(
-      zipCode.replace(/\D/g, ''),
-    );
+    if (salary) {
+      calculation.salaryPercentage = salary * 0.35;
+    }
 
-    calculation.daysPassed = daysPassed;
-    calculation.monthsPassed = monthsPassed;
-    calculation.yearsPassed = yearsPassed;
-    calculation.salaryPercentage = salaryPercentage;
-    calculation.zipCodeData = zipCodeData;
+    if (zipCode) {
+      calculation.zipCodeData = await this.zipCodeService.getZipCodeData(
+        zipCode.replace(/\D/g, ''),
+      );
+    }
 
-    return this.calculationRepository.save(calculation);
+    const newCalculation = await this.calculationRepository.save(calculation);
+
+    return {
+      idUuid: newCalculation.idUuid,
+      daysPassed: newCalculation.daysPassed,
+      monthsPassed: newCalculation.monthsPassed,
+      yearsPassed: newCalculation.yearsPassed,
+      salaryPercentage: newCalculation.salaryPercentage,
+      zipCodeData: newCalculation.zipCodeData,
+    };
   }
 }
 
