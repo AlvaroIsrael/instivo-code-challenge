@@ -1,26 +1,15 @@
 import 'reflect-metadata';
-import CustomError from '@errors/Custom.error';
+
+import { UserModel } from '@entities/User.entity';
 import FakeHashProvider from '@modules/users/fakes/FakeHashProvider';
 import CreateUserService from '@modules/users/services/CreateUser.service';
 import UsersRepository from '@repositories/Users.repository';
-import { closeConnection, openConnection } from '@shared/database/dataSource';
-import logger from 'debug';
 
 let usersRepository: UsersRepository;
 let fakeHashProvider: FakeHashProvider;
 let createUserService: CreateUserService;
 
-describe('CreateUser', () => {
-  beforeAll(() => {
-    openConnection()
-      .then((connection) => {
-        logger.log(`Database initialized: ${connection.readyState}`);
-      })
-      .catch((err) => {
-        logger.log(`💣 Error initializing the application 💥: ${err}`);
-      });
-  });
-
+describe('CreateUserService', () => {
   beforeEach(() => {
     usersRepository = new UsersRepository();
     fakeHashProvider = new FakeHashProvider();
@@ -34,26 +23,16 @@ describe('CreateUser', () => {
     jest.clearAllMocks();
   });
 
-  afterAll(async () => {
-    await closeConnection();
-  });
-
-  test('Deve ser capaz de criar um novo usuário.', async () => {
-    const user = await createUserService.execute({
-      name: 'Jhon Doe',
-      email: 'jhondoe@example.com',
-      password: 'E9334650C128',
-    });
-
-    expect(user).toHaveProperty('id');
-  });
-
   test('Não deve ser capaz de criar um usuário com e-mail que já existe.', async () => {
-    await createUserService.execute({
+    const existingUser = new UserModel({
       name: 'Jhon Doe',
       email: 'jhondoe1@example.com',
       password: 'E9334650C128',
     });
+
+    const findByEmailSpy = jest
+      .spyOn(usersRepository, 'findByEmail')
+      .mockResolvedValue(existingUser);
 
     try {
       await createUserService.execute({
@@ -62,7 +41,37 @@ describe('CreateUser', () => {
         password: '8DE0A7A43771',
       });
     } catch (error) {
-      expect(error).toBeInstanceOf(CustomError);
+      // @ts-ignore
+      expect(error.message).toBe('Email already used.');
     }
+
+    expect(findByEmailSpy).toHaveBeenCalledTimes(1);
+    expect(findByEmailSpy).toHaveBeenCalledWith('jhondoe1@example.com');
+  });
+
+  test('Deve ser capaz de criar um novo usuário.', async () => {
+    const newUser = new UserModel({
+      name: 'Jhon Doe',
+      email: 'jhondoe1@example.com',
+      password: 'E9334650C128',
+    });
+
+    const findByEmailSpy = jest
+      .spyOn(usersRepository, 'findByEmail')
+      .mockResolvedValue(null);
+
+    const createSpy = jest
+      .spyOn(usersRepository, 'create')
+      .mockImplementation(async () => newUser);
+
+    const user = await createUserService.execute({
+      name: 'Jhon Doe',
+      email: 'jhondoe@example.com',
+      password: 'E9334650C128',
+    });
+
+    expect(user).toBe(newUser);
+    expect(findByEmailSpy).toHaveBeenCalledTimes(1);
+    expect(createSpy).toHaveBeenCalledTimes(1);
   });
 });
