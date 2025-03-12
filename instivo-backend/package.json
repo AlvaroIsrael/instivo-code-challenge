@@ -7,7 +7,7 @@
     "start": "dotenv -e .env.production ts-node src/server.ts",
     "dev": "NODE_ENV=development dotenv -e .env.development -- ts-node-dev -r tsconfig-paths/register --inspect --ignore-watch node_modules --respawn src/server.ts",
     "migration:run": "NODE_ENV=development npx ts-node -P tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./src/shared/database/dataSource.ts",
-    "test:coverage": "NODE_ENV=testing dotenv -e .env.testing jest --coverage --runInBand"
+    "test:coverage": "NODE_ENV=testing dotenv -e .env.testing jest --coverage"
   },
   "author": "israel.nunes.leite@gmail.com",
   "description": "Instivo backend code challenge",
