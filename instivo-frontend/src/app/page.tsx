@@ -1,5 +1,6 @@
 'use client';
 import { IApiResponse } from '@/app/types';
+import axios from 'axios';
 import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { useReward } from 'react-rewards';
 import { useDebounce } from 'use-debounce';
@@ -75,18 +76,20 @@ export default function Home() {
     setResponse(null);
 
     try {
-      const res = await fetch('http://localhost:3333/v1/calculations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const res = await axios.post(
+        'http://localhost:3333/v1/calculations',
+        {
           date: formData.date,
           salary: parseFloat(formData.salary),
           zipCode: formData.zipCode,
-        }),
-      });
-      const data = await res.json();
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = res.data;
       setResponse(data);
       confettiReward();
       // biome-ignore lint/correctness/noUnusedVariables: <explanation>
