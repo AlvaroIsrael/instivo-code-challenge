@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7.0.14
+    container_name: mongo
+    env_file: instivo-backend/.env.development
+    restart: always
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/instivo --quiet
+    networks:
+      - mongo-compose-network
+    volumes:
+      - mongodata:/data/db
+
+  backend:
+    container_name: instivo-backend
+    env_file: instivo-backend/.env.development
+    build:
+      context: ./instivo-backend
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+      - '3333:3333'
+    restart: always
+    volumes:
+      - ./instivo-backend:/usr/src/instivo-backend
+      - /usr/src/instivo-backend/node_modules
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - mongo-compose-network
+
+  frontend:
+    container_name: instivo-frontend
+    build:
+      context: ./instivo-frontend
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./instivo-frontend:/usr/src/instivo-frontend
+      - /usr/src/instivo-frontend/node_modules
+    networks:
+      - mongo-compose-network
+
+volumes:
+  mongodata:
+    driver: local
+
+networks:
+  mongo-compose-network:
+    driver: bridge
