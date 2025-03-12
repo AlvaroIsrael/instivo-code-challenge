@@ -137,3 +137,6 @@ Aqui vai uma captura de tela do frontend:
   pronto, mas não implementei a autenticação em si.
 - Implementaria um sistema de cache para as requisições ao ViaCEP, para evitar fazer requisições repetidas ao mesmo CEP.
 - Utilizaria o TypeORM ao invés do Mongoose, pois acho ele mais robusto e com suporte a mais bancos de dados.
+- Talvez apartaria a lógica de cálculo de tempo de serviço e 35% do salário bruto para um serviço separado, 
+  possibilitando reuso. Por hora decidi não fazer isso, pois a lógica é simples e apartar só iria gerar mais 
+  complexidade e novos processos de teste.
