@@ -28,8 +28,8 @@ describe('ZipCodeService', () => {
       expect(error.message).toBe('ZipCode service is unavailable');
       // @ts-ignore
       expect(error).toBeInstanceOf(CustomError);
-      expect(logger.log).toHaveBeenCalledTimes(1);
     }
+    expect(logger.log).toHaveBeenCalledTimes(1);
   });
 
   test('Deve retornar os dados para um cep válido.', async () => {

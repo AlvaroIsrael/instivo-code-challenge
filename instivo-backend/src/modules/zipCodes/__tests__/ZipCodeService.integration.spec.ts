@@ -1,8 +1,5 @@
 import 'reflect-metadata';
 import ZipCodeService from '@modules/zipCodes/services/ZipCode.service';
-import CustomError from '@shared/errors/Custom.error';
-import axios from 'axios';
-import logger from 'debug';
 
 let zipCodeService: ZipCodeService;
 
